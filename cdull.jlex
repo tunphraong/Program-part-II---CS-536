@@ -74,38 +74,6 @@ return new Symbol(sym.EOF);
 
 %%
 
-{DIGIT}+  { // NOTE: the following computation of the integer value does NOT
-            //       check for overflow.  This must be changed.
-
-
-            double val = (new Double(yytext())).doubleValue();
-            Integer temp;
-            if (val > Integer.MAX_VALUE) {
-                ErrMsg.warn(yyline+1, CharNum.num, "overflow");
-            }
-            else {
-                temp = (new Integer(yytext())).intValue();
-            }
-
-            Symbol S = new Symbol(sym.INTLITERAL,
-                             new IntLitTokenVal(yyline+1, CharNum.num, temp));
-            CharNum.num += yytext().length();
-            return S;
-          }
-
-\n        { 
-			// CharNum.linenum += 1
-			CharNum.num = 1;
-		  }
-
-{WHITESPACE}+  { CharNum.num += yytext().length(); }
-
-{COMMENT}	{ 
-				//ignore comment
-				CharNum.num += yytext().length();
-
-			}
-
 "bool"      {Symbol S = new Symbol(sym.BOOL, new TokenVal(yyline+1, CharNum.num));
             CharNum.num += yytext().length();
             return S;
@@ -165,11 +133,34 @@ return new Symbol(sym.EOF);
             CharNum.num += yytext().length();
             return S;
             }
-            
+
 [_a-zA-Z][_a-zA-Z0-9]* {Symbol S = new Symbol(sym.ID, new IdTokenVal(yyline+1, CharNum.num));
                         CharNum.num += yytext().length();
                         return S;
                         }
+
+{DIGIT}+  { // NOTE: the following computation of the integer value does NOT
+            //       check for overflow.  This must be changed.
+
+
+            double val = (new Double(yytext())).doubleValue();
+            Integer temp;
+            if (val > Integer.MAX_VALUE) {
+                ErrMsg.warn(yyline+1, CharNum.num, "overflow");
+            }
+            else {
+                temp = (new Integer(yytext())).intValue();
+            }
+
+            Symbol S = new Symbol(sym.INTLITERAL,
+                             new IntLitTokenVal(yyline+1, CharNum.num, temp));
+            CharNum.num += yytext().length();
+            return S;
+          }
+
+
+/// string literal
+/// Code here
 
 
 "+"       { Symbol S = new Symbol(sym.PLUS, new TokenVal(yyline+1, CharNum.num));
@@ -294,10 +285,24 @@ return new Symbol(sym.EOF);
 
 "="       { Symbol S = new Symbol(sym.ASSIGN, new TokenVal(yyline+1, CharNum.num));
             CharNum.num++;
-           	return S;
+            return S;
            }
 
-        	
+
+{COMMENT}   { 
+                //ignore comment
+                CharNum.num += yytext().length();
+
+            }
+
+
+\n        { 
+			CharNum.num = 1;
+		  }
+
+{WHITESPACE}+  { CharNum.num += yytext().length(); }
+
+  	
 .         { ErrMsg.fatal(yyline+1, CharNum.num,
                          "ignoring illegal character: " + yytext());
             CharNum.num++;
