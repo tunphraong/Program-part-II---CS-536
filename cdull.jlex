@@ -1,4 +1,4 @@
-6import java_cup.runtime.*; // defines the Symbol class
+`6import java_cup.runtime.*; // defines the Symbol class
 
 // The generated scanner will return a Symbol for each token that it finds.
 // A Symbol contains an Object field named value; that field will be of type
@@ -58,7 +58,8 @@ class CharNum {
 
 DIGIT=        [0-9]
 WHITESPACE=   [\040\t]
-COMMENT = [((\/\/\/)|(##))(.)*(\n)]
+COMMENT= [((\/\/\/)|(##))(.)*(\n)]
+STRING= ((\\[nt\"\'\?\\])|([^\n\"\\]))
 
 
 
@@ -134,10 +135,11 @@ return new Symbol(sym.EOF);
             return S;
             }
 
-[_a-zA-Z][_a-zA-Z0-9]* {Symbol S = new Symbol(sym.ID, new IdTokenVal(yyline+1, CharNum.num));
+[_a-zA-Z][_a-zA-Z0-9]* {Symbol S = new Symbol(sym.ID, new IdTokenVal(yyline+1, CharNum.num, yytext()));
                         CharNum.num += yytext().length();
                         return S;
                         }
+     
 
 {DIGIT}+  { // NOTE: the following computation of the integer value does NOT
             //       check for overflow.  This must be changed.
@@ -159,9 +161,33 @@ return new Symbol(sym.EOF);
           }
 
 
+
 /// string literal
 /// Code here
+/// \"((\\[nt\"\'\?\\])|([^\n\"\\]))*\"
+[\"]{STRING}*[\"]
+		  {
+		  	// good string literal
+		  	String val = yytext();
+		  	Symbol S = new Symbol(sym.STRINGLITERAL, new StrLitTokenVal(yyline+1, CharNum.num, val));
+			CharNum.num += yytext().length();
+			return S;
+		  }
 
+
+static void fatal(int lineNum, int charNum, String msg) {
+        System.err.println(lineNum + ":" + charNum + " ***ERROR*** " + msg);
+
+[\"]{STRING}*
+
+		  {
+		  	  //Error message: string is not terminated
+		  	  // example: "unterminated
+		  	  // bad string literal
+		  	  ErrMsg.fatal(yyline+1, charNum.num, "Error: String is not terminated: ++" + yytext);
+		  	  CharNum.num += yytext().length();
+		  }
+	
 
 "+"       { Symbol S = new Symbol(sym.PLUS, new TokenVal(yyline+1, CharNum.num));
             CharNum.num++;
