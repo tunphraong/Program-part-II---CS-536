@@ -27,7 +27,32 @@ public class P2 {
         System.out.println("  content: "+ val);
     }
 
-
+    private static void testID(String input, String output) throws IOException {
+        FileReader inFile = null;
+        PrintWriter outFile = null;
+        try {
+            inFile = new FileReader(input);
+            outFile = new PrintWriter(new FileWriter(output));
+        } catch (FileNotFoundException ex) {
+            System.err.println(input +" not found.");
+            System.exit(-1);
+        } catch (IOException ex) {
+            System.err.println(output + " cannot be opened.");
+            System.exit(-1);
+        }
+        
+        Yylex scanner = new Yylex(inFile);
+        Symbol token = scanner.next_token();
+        while (token.sym != sym.EOF) {
+            if(token.sym == sym.ID){
+                String id = ((IdTokenVal)token.value).idVal;
+                showTokenInfo("Identifier", id, token);
+                outFile.println(id);
+            }
+            token = scanner.next_token();
+        }
+        outFile.close();
+    }
     /**
      * [Test the scanner on normal number, space, and very larger numbers]
      * @param  input       [input file name]
