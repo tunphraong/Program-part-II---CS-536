@@ -36,9 +36,33 @@ ErrMsg.class: ErrMsg.java
 # to expected results
 ###
 test:
+	java -cp $(CP) P2 0
+	diff allTokens.out allTokens_expect.out
+	diff test_int_literal.out test_int_literal_expect.out
+	diff test_id.out test_id_expect.out
+	diff test_string_lit.out test_string_lit_expect.out
+	diff test_line.out test_line_expect.out
+
+test_token:
+	java -cp $(CP) P2 1
+	diff test_id.out test_id_expect.out
+test_id:
+	java -cp $(CP) P2 2 
+	diff test_id.out test_id_expect.out
+
+test_string:
+	java -cp $(CP) P2 3
+	diff test_string_lit.out test_string_lit_expect.out
+
+test_integer:
+	java -cp $(CP) P2 4
 	diff test_int_literal.out test_int_literal_expect.out
 
-	diff test_int_literal.out test_int_literal_expect.out
+test_line:
+	java -cp $(CP) P2 5
+	diff test_line.out test_line_expect.out
+
+
 ###
 # clean up
 ###
