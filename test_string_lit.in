@@ -1,0 +1,26 @@
+"good string"
+"GOOd StrinG"
+"!@^&()"
+"\n \t \? \\ \"\'"
+"&!88"
+
+
+"unterminated
+"
+Unterminated before"
+
+
+"also unterminated \"
+"backslash followed by space: \ is not allowed"
+
+
+"unterminated and bad escaped character: \a
+"unterminated AND bad escape \f \" \v
+
+
+
+"terminated but bad ESCAPE \p \\"
+"terminated but bad escape 1 \\ \ \? \b"
+"terminated but bad escape \\\\\r""
+
+
