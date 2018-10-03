@@ -59,7 +59,8 @@ class CharNum {
 DIGIT=        [0-9]
 WHITESPACE=   [\040\t]
 COMMENT=      ((\/\/\/)|(##))(.)*(\n)
-STRING=       ((\\[nt\"\'\?\\])|([^\n\"\\]))
+STRING = ((\\[nt?'\"\\])|([^\n\"\\]))
+
 
 
 
@@ -160,39 +161,35 @@ return new Symbol(sym.EOF);
           }
 
 \"{STRING}*\"
-      {
-        
-        String val = yytext();
-        Symbol S = new Symbol(sym.STRINGLITERAL, new StrLitTokenVal(yyline+1, CharNum.num, val));
-        CharNum.num += yytext().length();
-        return S;
+     { // good string literal
+          String val = yytext();
+          Symbol S = new Symbol(sym.STRINGLITERAL, new StrLitTokenVal(yyline+1, CharNum.num, val));
+          CharNum.num += yytext().length();
+          return S;
       }
 
 \"{STRING}*
-
-      {
-          //Error message: string is not terminated
-          // example: "unterminated
-          // bad string literal
-          ErrMsg.fatal(yyline+1, CharNum.num, "illegal character ignored: " + yytext());
-          CharNum.num += yytext().length();
-      }
-
-\"({STRING}*([^\n"\\]|\\[^nt"'?\\])+{STRING}*)*\"
-      {
-            // Error message: string contains bad escaped character, but terminated
-            ErrMsg.fatal(yyline+1, CharNum.num, "string literal with bad escaped character ignored: " + yytext());
+    {// unterminated string
+        ErrMsg.fatal(yyline+1, CharNum.num,
+            "unterminated string literal ignored " + yytext());
             CharNum.num += yytext().length();
-      }
+    }
 
-\"({STRING}*([^\n"\\]|\\[^nt"'?\\])+{STRING}*)*
-
-
-      {
-            // Error message: string contains bad escaped character AND not terminated
-            ErrMsg.fatal(yyline+1, CharNum.num, "unterminated string literal ignored: : " + yytext());
+\"({STRING}*([^\n\"\\]|[\\][^nt?'\"\\])+{STRING}*)*\"
+       {// bad type I: includes bad "escape" character
+           // for if it is not a good terminated string, it's bad
+            ErrMsg.fatal(yyline+1, CharNum.num,
+            "string literal with bad escaped character ignored " + yytext());
             CharNum.num += yytext().length();
-      }
+       }
+
+\"({STRING}*([^\n\"\\]|[\\][^nt?'\"\\])+{STRING}*)*
+       { // bad type II: unterminated with bad escape
+         // previous: [\"][^\\\"]*[\\](\n)*[\"]
+      ErrMsg.fatal(yyline+1, CharNum.num,
+          "unterminated string literal with bad escaped character ignored " + yytext());
+            CharNum.num += yytext().length();
+       }
 
 
 "+"       { Symbol S = new Symbol(sym.PLUS, new TokenVal(yyline+1, CharNum.num));

@@ -11,20 +11,44 @@ import java_cup.runtime.*;  // defines Symbol
 public class P2 {
     public static void main(String[] args) throws IOException {
                                            // exception may be thrown by yylex
-        // test all tokens
-        testAllTokens();
-        CharNum.num = 1;
-        testIntLiteral("test_int_literal.in", "test_int_literal.out");
+
+        if (Integer.valueOf(args[0]) == 0) {
+            // run all tests
+            testAllTokens();
+            CharNum.num = 1;
+            testIntLiteral("test_int_literal.in", "test_int_literal.out"); 
+            CharNum.num = 1;
+            testID("test_id.in", "test_id.out"); // test identifier
+            CharNum.num = 1;
+            testStringLiteral("test_string_lit.in", "test_string_lit.out");
+            CharNum.num = 1;
+        }
+        else if (Integer.valueOf(args[0]) == 1) {
+            testAllTokens();
+            CharNum.num = 1;
+        } else if (Integer.valueOf(args[0]) == 2) {
+            testIntLiteral("test_int_literal.in", "test_int_literal.out"); 
+            CharNum.num = 1;
+        } else if (Integer.valueOf(args[0]) == 3) {
+            testID("test_id.in", "test_id.out"); // test identifier
+            CharNum.num = 1;
+        } else if (Integer.valueOf(args[0]) == 4) {
+            testStringLiteral("test_string_lit.in", "test_string_lit.out");
+            CharNum.num = 1;
+        }
     
         // ADD CALLS TO OTHER TEST METHODS HERE
     }
 
-    private static void showTokenInfo(String type, String val, Symbol token){
-        int tokenLine = ((TokenVal)token.value).linenum;
+    private static void toKenInfo(String type, String val, Symbol token){
+        int line = ((TokenVal)token.value).linenum;
         int tokenCharnum = ((TokenVal)token.value).charnum;
-
-        System.out.print(tokenLine +":"+tokenCharnum + " ***" + type.toUpperCase()+"***");
+        System.out.print("line: " + line +"   char num: " + tokenCharnum+ "     "  + type);
         System.out.println("  content: "+ val);
+    }
+
+    private static void testLine(String input, String output) throws IOException {
+
     }
 
     private static void testID(String input, String output) throws IOException {
@@ -40,16 +64,17 @@ public class P2 {
             System.err.println(output + " cannot be opened.");
             System.exit(-1);
         }
-	// create and call the scanner
-        Yylex scanner = new Yylex(inFile);
+        
+        Yylex scanner = new Yylex(inFile); // create scanner
         Symbol token = scanner.next_token();
         while (token.sym != sym.EOF) {
             if(token.sym == sym.ID){
                 String id = ((IdTokenVal)token.value).idVal;
-                showTokenInfo("Identifier", id, token);
+                toKenInfo("Identifier", id, token);
                 outFile.println(id);
             }
             token = scanner.next_token();
+            // outFile.print("\n");
         }
         outFile.close();
     }
@@ -76,7 +101,7 @@ public class P2 {
             if (token.sym == sym.INTLITERAL) {
                 int val = ((IntLitTokenVal)token.value).intVal;
                 outFile.println(((IntLitTokenVal)token.value).intVal);
-                showTokenInfo("Integer Literal", Integer.toString(val),token);
+                toKenInfo("Integer Literal", Integer.toString(val),token);
             }
 
             token = scanner.next_token();
@@ -84,19 +109,25 @@ public class P2 {
 
         outFile.close();
     }
-
-    private static void testStringLiteral(String fin, String fout) throws IOException {
+    /**
+     * [testStringLiteral description]
+     * @param  fin         [input file]
+     * @param  fout        [output file]
+     * @throws IOException [in/out]
+     */
+    private static void testStringLiteral(String input, String output) throws IOException {
+        
         FileReader inFile = null;
         PrintWriter outFile = null;
         try {
 
-	    inFile = new FileReader(fin);
-            outFile = new PrintWriter(new FileWriter(fout));
+        inFile = new FileReader(input);
+        outFile = new PrintWriter(new FileWriter(output));
         } catch (FileNotFoundException ex) {
-            System.err.println(fin + " not found.");
+            System.err.println(input + " not found.");
             System.exit(-1);
         } catch (IOException ex) {
-            System.err.println(fout + " cannot be opened.");
+            System.err.println(output + " cannot be opened.");
             System.exit(-1);
         }
 
@@ -104,16 +135,17 @@ public class P2 {
         Yylex scanner = new Yylex(inFile);
         Symbol token = scanner.next_token();
         while (token.sym != sym.EOF) {
-
-	    if(token.sym == sym.STRINGLITERAL) {
-		String strVal = ((StrLitTokenVal)token.value).strVal;
-		showTokenInfo("String Literal", strVal, token);
+            if(token.sym == sym.STRINGLITERAL) {
+                String strVal = ((StrLitTokenVal)token.value).strVal;
+                toKenInfo("String Literal", strVal, token);
                 outFile.println(strVal);
-	    }
+            }
             token = scanner.next_token();
-	}
+        }
         outFile.close();
     }
+
+
     /**
      * testAllTokens
      *
@@ -150,7 +182,7 @@ public class P2 {
             case sym.BOOL:
                 outFile.println("bool"); 
                 break;
-			case sym.INT:
+            case sym.INT:
                 outFile.println("int");
                 break;
             case sym.VOID:
@@ -170,7 +202,7 @@ public class P2 {
                 break;
             case sym.COUT:
                 outFile.println("cout");
-                break;				
+                break;              
             case sym.IF:
                 outFile.println("if");
                 break;
@@ -222,13 +254,13 @@ public class P2 {
                 break;
             case sym.READ:
                 outFile.println(">>");
-                break;				
+                break;              
             case sym.PLUSPLUS:
                 outFile.println("++");
                 break;
             case sym.MINUSMINUS:
                 outFile.println("--");
-                break;	
+                break;  
             case sym.PLUS:
                 outFile.println("+");
                 break;
@@ -268,11 +300,11 @@ public class P2 {
             case sym.GREATEREQ:
                 outFile.println(">=");
                 break;
-			case sym.ASSIGN:
+            case sym.ASSIGN:
                 outFile.println("=");
                 break;
-			default:
-				outFile.println("UNKNOWN TOKEN");
+            default:
+                outFile.println("UNKNOWN TOKEN");
             } // end switch
 
             token = scanner.next_token();
