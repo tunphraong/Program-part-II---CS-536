@@ -40,7 +40,7 @@ public class P2 {
             System.err.println(output + " cannot be opened.");
             System.exit(-1);
         }
-        
+	// create and call the scanner
         Yylex scanner = new Yylex(inFile);
         Symbol token = scanner.next_token();
         while (token.sym != sym.EOF) {
@@ -53,12 +53,7 @@ public class P2 {
         }
         outFile.close();
     }
-    /**
-     * [Test the scanner on normal number, space, and very larger numbers]
-     * @param  input       [input file name]
-     * @param  output      [outout file name]
-     * @throws IOException [In/output exception]
-     */
+
     private static void testIntLiteral(String input, String output) throws IOException {
         FileReader inFile = null;
         PrintWriter outFile = null;
@@ -74,7 +69,7 @@ public class P2 {
             System.exit(-1);
         }
 
-        // create a new scanner
+        // create and call the scanner
         Yylex scanner = new Yylex(inFile);
         Symbol token = scanner.next_token();
         while (token.sym != sym.EOF) {
@@ -90,6 +85,35 @@ public class P2 {
         outFile.close();
     }
 
+    private static void testStringLiteral(String fin, String fout) throws IOException {
+        FileReader inFile = null;
+        PrintWriter outFile = null;
+        try {
+
+	    inFile = new FileReader(fin);
+            outFile = new PrintWriter(new FileWriter(fout));
+        } catch (FileNotFoundException ex) {
+            System.err.println(fin + " not found.");
+            System.exit(-1);
+        } catch (IOException ex) {
+            System.err.println(fout + " cannot be opened.");
+            System.exit(-1);
+        }
+
+        // create and call the scanner
+        Yylex scanner = new Yylex(inFile);
+        Symbol token = scanner.next_token();
+        while (token.sym != sym.EOF) {
+
+	    if(token.sym == sym.STRINGLITERAL) {
+		String strVal = ((StrLitTokenVal)token.value).strVal;
+		showTokenInfo("String Literal", strVal, token);
+                outFile.println(strVal);
+	    }
+            token = scanner.next_token();
+	}
+        outFile.close();
+    }
     /**
      * testAllTokens
      *
