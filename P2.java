@@ -22,8 +22,7 @@ public class P2 {
             CharNum.num = 1;
             testStringLiteral("test_string_lit.in", "test_string_lit.out");
             CharNum.num = 1;
-        }
-        else if (Integer.valueOf(args[0]) == 1) {
+        } else if (Integer.valueOf(args[0]) == 1) {
             testAllTokens();
             CharNum.num = 1;
         } else if (Integer.valueOf(args[0]) == 2) {
@@ -35,22 +34,66 @@ public class P2 {
         } else if (Integer.valueOf(args[0]) == 4) {
             testStringLiteral("test_string_lit.in", "test_string_lit.out");
             CharNum.num = 1;
+        } else if (Integer.valueOf(args[0]) == 5) {
+            testLine("test_int_literal.in", "test_line.out");
+            CharNum.num = 1;
         }
     
         // ADD CALLS TO OTHER TEST METHODS HERE
     }
 
-    private static void toKenInfo(String type, String val, Symbol token){
+    private static void tokenInfo(String type, String val, Symbol token){
         int line = ((TokenVal)token.value).linenum;
         int tokenCharnum = ((TokenVal)token.value).charnum;
         System.out.print("line: " + line +"   char num: " + tokenCharnum+ "     "  + type);
         System.out.println("  content: "+ val);
     }
 
+    /**
+     * test line and character number to see if they are at right place
+     * print the line and char num that token appears
+     * @param  input       [input file]
+     * @param  output      [output file]
+     * @throws IOException [exception]
+     */
     private static void testLine(String input, String output) throws IOException {
+        FileReader inFile = null;
+        PrintWriter outFile = null;
+        try {
+            inFile = new FileReader(input);
+            // System.out.println("get here");
+            outFile = new PrintWriter(new FileWriter(output));
+        } catch (FileNotFoundException ex) {
+            System.err.println(input + " not found.");
+            System.exit(-1);
+        } catch (IOException ex) {
+            System.err.println(output + " cannot be opened.");
+            System.exit(-1);
+        }
 
+        // create and call the scanner
+        Yylex scanner = new Yylex(inFile);
+        Symbol token = scanner.next_token();
+        while (token.sym != sym.EOF) {
+            if (token.sym == sym.INTLITERAL) {
+                int val = ((IntLitTokenVal)token.value).intVal;
+                outFile.println(((IntLitTokenVal)token.value).linenum);
+                outFile.println(((IntLitTokenVal)token.value).charnum);
+                tokenInfo("Integer Literal", Integer.toString(val),token);
+            }
+
+            token = scanner.next_token();
+        }
+
+        outFile.close();
     }
-
+    
+    /**
+     * test with a bunch of good and bad identifiers
+     * @param  input       [input file]
+     * @param  output      [output file]
+     * @throws IOException [description]
+     */
     private static void testID(String input, String output) throws IOException {
         FileReader inFile = null;
         PrintWriter outFile = null;
@@ -70,7 +113,7 @@ public class P2 {
         while (token.sym != sym.EOF) {
             if(token.sym == sym.ID){
                 String id = ((IdTokenVal)token.value).idVal;
-                toKenInfo("Identifier", id, token);
+                tokenInfo("Identifier", id, token);
                 outFile.println(id);
             }
             token = scanner.next_token();
@@ -79,6 +122,12 @@ public class P2 {
         outFile.close();
     }
 
+    /**
+     * test with different integer literals
+     * @param  input       [description]
+     * @param  output      [description]
+     * @throws IOException [description]
+     */
     private static void testIntLiteral(String input, String output) throws IOException {
         FileReader inFile = null;
         PrintWriter outFile = null;
@@ -101,7 +150,7 @@ public class P2 {
             if (token.sym == sym.INTLITERAL) {
                 int val = ((IntLitTokenVal)token.value).intVal;
                 outFile.println(((IntLitTokenVal)token.value).intVal);
-                toKenInfo("Integer Literal", Integer.toString(val),token);
+                tokenInfo("Integer Literal", Integer.toString(val),token);
             }
 
             token = scanner.next_token();
@@ -110,7 +159,7 @@ public class P2 {
         outFile.close();
     }
     /**
-     * [testStringLiteral description]
+     * [test with a lot of strings]
      * @param  fin         [input file]
      * @param  fout        [output file]
      * @throws IOException [in/out]
@@ -137,7 +186,7 @@ public class P2 {
         while (token.sym != sym.EOF) {
             if(token.sym == sym.STRINGLITERAL) {
                 String strVal = ((StrLitTokenVal)token.value).strVal;
-                toKenInfo("String Literal", strVal, token);
+                tokenInfo("String Literal", strVal, token);
                 outFile.println(strVal);
             }
             token = scanner.next_token();

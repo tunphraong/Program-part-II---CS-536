@@ -41,6 +41,7 @@ test:
 	diff test_int_literal.out test_int_literal_expect.out
 	diff test_id.out test_id_expect.out
 	diff test_string_lit.out test_string_lit_expect.out
+	test_line.out test_line_expect.out
 
 test_token:
 	java -cp $(CP) P2 1
@@ -56,6 +57,10 @@ test_string:
 test_integer:
 	java -cp $(CP) P2 4
 	diff test_int_literal.out test_int_literal_expect.out
+
+test_line:
+	java -cp $(CP) P2 5
+	diff test_line.out test_line_expect.out
 
 
 ###
